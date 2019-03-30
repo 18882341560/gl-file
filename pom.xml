@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.greelee</groupId>
+        <artifactId>gl-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>gl-file</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>gl-file</name>
+    <description>文件操作模块</description>
+
+
+    <dependencies>
+        <!--word 操作-->
+        <dependency>
+            <groupId>word</groupId>
+            <artifactId>word</artifactId>
+            <scope>system</scope>
+            <version>1.0</version>
+            <systemPath>${project.basedir}/src/main/resources/lib/aspose-words-19.1-jdk16.jar</systemPath>
+        </dependency>
+
+        <!--excel 操作-->
+        <dependency>
+            <groupId>excel</groupId>
+            <artifactId>excel</artifactId>
+            <scope>system</scope>
+            <version>1.0</version>
+            <systemPath>${project.basedir}/src/main/resources/lib/aspose-cells-18.9.jar</systemPath>
+        </dependency>
+
+        <!--slides 操作-->
+        <dependency>
+            <groupId>slides</groupId>
+            <artifactId>slides</artifactId>
+            <scope>system</scope>
+            <version>1.0</version>
+            <systemPath>${project.basedir}/src/main/resources/lib/aspose.slides-15.9.0.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                    <compilerArgs>
+                        <arg>-extdirs</arg>
+                        <arg>${project.basedir}/src/main/resources/lib</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <targetPath>BOOT-INF/classes</targetPath>
+            </resource>
+        </resources>
+    </build>
+
+
+</project>
