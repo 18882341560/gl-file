@@ -60,4 +60,15 @@ public enum WordSaveFormat {
         return value;
     }
 
+
+    public static WordSaveFormat getValueByName(String name) {
+        WordSaveFormat[] values = WordSaveFormat.values();
+        for (WordSaveFormat wordSaveFormat : values) {
+            if (wordSaveFormat.name().equalsIgnoreCase(name)) {
+                return wordSaveFormat;
+            }
+        }
+        return UNKNOWN;
+    }
+
 }
