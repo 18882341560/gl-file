@@ -10,7 +10,7 @@ import java.io.Serializable;
  * @Email: 110.com
  * @version: 1.0
  * @Date: 2019/5/7
- * @describe: word 文字水印
+ * @describe: word 水印
  */
 @Getter
 @Setter
@@ -18,27 +18,9 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WordWaterMarkText implements Serializable {
+public class WordWaterMark implements Serializable {
 
     private static final long serialVersionUID = -6172916064775222514L;
-
-    public static final String DEFAULT_FONT_FAMILY = "宋体";
-    public static final String DEFAULT_COLOR = "9FB6CD";
-    public static final int DEFAULT_RADIX = 16;
-    public static final int DEFAULT_WIDTH = 100;
-    public static final int DEFAULT_HEIGHT = 100;
-    /**
-     * 左下到右上,角度
-     */
-    public static final double DEFAULT_ROTATION = 0;
-    /**
-     * 这一页有多少排水印,在高度范围内
-     */
-    public static final int DEFAULT_NUM = 3;
-    public static final int DEFAULT_MARGIN_TOP = 50;
-    public static final int DEFAULT_MARGIN_LEFT = 50;
-    public static final int DEFAULT_LOAD_TOP_FACTOR = 150;
-    public static final int DEFAULT_LOAD_LEFT_FACTOR = 200;
 
 
     /**
@@ -53,6 +35,10 @@ public class WordWaterMarkText implements Serializable {
      * 水印文字
      */
     private String watermarkText;
+    /**
+     * 水印图片
+     */
+    private InputStream watermarkImage;
     /**
      * 字体
      */

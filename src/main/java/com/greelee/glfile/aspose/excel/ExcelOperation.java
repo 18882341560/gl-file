@@ -16,9 +16,9 @@ import java.util.Objects;
  * @Date: 2019/3/30
  * @describe: excel转换
  */
-public class ExcelConvert {
+public class ExcelOperation {
 
-    private ExcelConvert() {
+    private ExcelOperation() {
     }
 
     /**
@@ -26,7 +26,7 @@ public class ExcelConvert {
      * @return
      */
     private static boolean isLicense() {
-        InputStream inputStream = ExcelConvert.class.getClassLoader().getResourceAsStream("license.xml");
+        InputStream inputStream = ExcelOperation.class.getClassLoader().getResourceAsStream("license.xml");
         License license = new License();
         if(Objects.isNull(inputStream)){
             throw new RuntimeException("not found license.xml");

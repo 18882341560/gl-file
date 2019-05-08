@@ -15,9 +15,9 @@ import java.util.Objects;
  * @Date: 2019/3/30
  * @describe: ppt转换
  */
-public class SlidesConvert {
+public class SlidesOperation {
 
-    private SlidesConvert() {
+    private SlidesOperation() {
     }
 
     /**
@@ -26,7 +26,7 @@ public class SlidesConvert {
      * @return
      */
     private static boolean isLicense() {
-        InputStream licenseIs = SlidesConvert.class.getClassLoader().getResourceAsStream("license.xml");
+        InputStream licenseIs = SlidesOperation.class.getClassLoader().getResourceAsStream("license.xml");
         License license = new License();
         if (Objects.isNull(licenseIs)) {
             throw new RuntimeException("not found license.xml");
