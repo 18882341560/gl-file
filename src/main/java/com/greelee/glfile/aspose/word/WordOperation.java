@@ -27,8 +27,8 @@ public class WordOperation {
      * 左下到右上,角度
      */
     private static final double DEFAULT_ROTATION = 0;
-    private static final int DEFAULT_MARGIN_TOP = 50;
-    private static final int DEFAULT_MARGIN_LEFT = 50;
+    private static final int DEFAULT_MARGIN_TOP = 250;
+    private static final int DEFAULT_MARGIN_LEFT = 450;
 
     private WordOperation() {
     }
