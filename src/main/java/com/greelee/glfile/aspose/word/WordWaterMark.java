@@ -71,18 +71,6 @@ public class WordWaterMark implements Serializable {
      * the radix to be used while parsing
      */
     private int radix;
-    /**
-     * 这一页有多少排水印,在高度范围内
-     */
-    private int num;
-    /**
-     * 加载的垂直高度的因子
-     */
-    private int loadTopFactor;
-    /**
-     * 加载的水平长度的因子
-     */
-    private int loadLeftFactor;
 
 
 }

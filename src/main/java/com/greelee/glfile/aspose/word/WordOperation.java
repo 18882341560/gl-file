@@ -4,9 +4,6 @@ import com.aspose.words.*;
 import com.google.common.base.Strings;
 import com.greelee.glfile.aspose.constant.WordSaveFormat;
 import org.apache.commons.lang3.StringUtils;
-
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Objects;
@@ -30,14 +27,8 @@ public class WordOperation {
      * 左下到右上,角度
      */
     private static final double DEFAULT_ROTATION = 0;
-    /**
-     * 这一页有多少排水印,在高度范围内
-     */
-    private static final int DEFAULT_NUM = 3;
     private static final int DEFAULT_MARGIN_TOP = 50;
     private static final int DEFAULT_MARGIN_LEFT = 50;
-    private static final int DEFAULT_LOAD_TOP_FACTOR = 150;
-    private static final int DEFAULT_LOAD_LEFT_FACTOR = 200;
 
     private WordOperation() {
     }
@@ -76,7 +67,7 @@ public class WordOperation {
     }
 
     /**
-     * 添加水印文字
+     * 添加水印文字,多了会将文字往下挤,暂时还没有好的解决方法
      * 代码实例:
      * FileInputStream fileInputStream = new FileInputStream(new File("C:\\Users\\gelin\\Desktop\\基础数据服务.docx"));
      * WordWaterMark wordWaterMark = WordWaterMark.builder()
@@ -90,112 +81,35 @@ public class WordOperation {
         if (paramCheckWatermarkText(wordWaterMark)) {
             Document doc = new Document(wordWaterMark.getDocInputStream());
             initWordWaterMark(wordWaterMark);
-            int top = wordWaterMark.getMarginTop();
-            for (int i = 0; i < wordWaterMark.getNum(); i++) {
-                int left = wordWaterMark.getMarginLeft();
-                for (int j = 0; j < wordWaterMark.getNum(); j++) {
-                    insertWatermarkText(doc, wordWaterMark.getWatermarkText(), top, left, wordWaterMark.getFontFamily(),
-                            wordWaterMark.getWidth(), wordWaterMark.getHeight(), wordWaterMark.getRotation(),
-                            wordWaterMark.getColor(), wordWaterMark.getRadix());
-                    left = left + wordWaterMark.getLoadLeftFactor();
-                }
-                top = top + wordWaterMark.getLoadTopFactor();
-            }
+            setWatermarkText(doc, wordWaterMark.getWatermarkText(), wordWaterMark.getMarginTop(), wordWaterMark.getMarginLeft(),
+                    wordWaterMark.getFontFamily(), wordWaterMark.getWidth(), wordWaterMark.getHeight(),
+                    wordWaterMark.getRotation(), wordWaterMark.getColor(), wordWaterMark.getRadix());
             String suffix = getSuffix(wordWaterMark.getOutputPath());
             doc.save(wordWaterMark.getOutputPath(), WordSaveFormat.getValueByName(suffix).getValue());
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        FileInputStream fileInputStream = new FileInputStream(new File("C:\\Users\\gelin\\Desktop\\基础数据服务.docx"));
-        FileInputStream imageInputStream = new FileInputStream(new File("C:\\Users\\gelin\\Desktop\\自学资料\\[YAP~25RC6EUI0(C~HJ6}`V.png"));
-        WordWaterMark wordWaterMark = WordWaterMark.builder()
-                .docInputStream(fileInputStream)
-                .watermarkImage(imageInputStream)
-                .outputPath("C:\\Users\\gelin\\Desktop\\bbbb.docx")
-                .build();
-        WordOperation.addWatermarkImage(wordWaterMark);
 
-//        Document doc = new Document("C:\\Users\\gelin\\Desktop\\基础数据服务.docx");
-//        Shape shape = new Shape(doc, ShapeType.IMAGE);
-//        shape.setBehindText(true);
-//        shape.getImageData().setImage("C:\\Users\\gelin\\Desktop\\自学资料\\[YAP~25RC6EUI0(C~HJ6}`V.png");
-//        shape.setRelativeHorizontalPosition(RelativeHorizontalPosition.PAGE);
-//        shape.setRelativeVerticalPosition(RelativeVerticalPosition.PAGE);
-//        // TOP_BOTTOM : 将所设置位置的内容往上下顶出去
-//        shape.setWrapType(WrapType.NONE);
-//        //垂直对齐
-//        shape.setVerticalAlignment(VerticalAlignment.NONE);
-//        //水平对齐
-//        shape.setHorizontalAlignment(HorizontalAlignment.NONE);
-//        // 水印大小
-//        shape.setWidth(100);
-//        shape.setHeight(100);
-//        // Text will be directed from the bottom-left to the top-right corner.
-//        // 左下到右上,角度
-//        shape.setRotation(10);
-//        shape.setTop(50);
-//        shape.setLeft(100);
-//        Paragraph watermarkPara = new Paragraph(doc);
-//        watermarkPara.appendChild(shape);
-//        // Insert the watermark into all headers of each document section.
-//        for (Section sect : doc.getSections()) {
-//            // There could be up to three different headers in each section, since we want
-//            // the watermark to appear on all pages, insert into all headers.
-//            insertWatermarkIntoHeader(watermarkPara, sect, HeaderFooterType.HEADER_PRIMARY);
-//            insertWatermarkIntoHeader(watermarkPara, sect, HeaderFooterType.HEADER_FIRST);
-//            insertWatermarkIntoHeader(watermarkPara, sect, HeaderFooterType.HEADER_EVEN);
-//        }
-//        shape.setZOrder(-100);
-//
-//
-//        shape.setRelativeHorizontalPosition(RelativeHorizontalPosition.PAGE);
-//        shape.setRelativeVerticalPosition(RelativeVerticalPosition.PAGE);
-//        // TOP_BOTTOM : 将所设置位置的内容往上下顶出去
-//        shape.setWrapType(WrapType.NONE);
-//        //垂直对齐
-//        shape.setVerticalAlignment(VerticalAlignment.NONE);
-//        //水平对齐
-//        shape.setHorizontalAlignment(HorizontalAlignment.NONE);
-//        // 水印大小
-//        shape.setWidth(100);
-//        shape.setHeight(100);
-//        // Text will be directed from the bottom-left to the top-right corner.
-//        // 左下到右上,角度
-//        shape.setRotation(10);
-//        shape.setTop(200);
-//        shape.setLeft(100);
-//        Paragraph watermarkPara1 = new Paragraph(doc);
-//        watermarkPara1.appendChild(shape);
-//        // Insert the watermark into all headers of each document section.
-//        for (Section sect : doc.getSections()) {
-//            // There could be up to three different headers in each section, since we want
-//            // the watermark to appear on all pages, insert into all headers.
-//            insertWatermarkIntoHeader(watermarkPara1, sect, HeaderFooterType.HEADER_PRIMARY);
-//            insertWatermarkIntoHeader(watermarkPara1, sect, HeaderFooterType.HEADER_FIRST);
-//            insertWatermarkIntoHeader(watermarkPara1, sect, HeaderFooterType.HEADER_EVEN);
-//        }
-//        shape.setZOrder(-100);
-//
-//        doc.save("C:\\Users\\gelin\\Desktop\\bbbb.docx", WordSaveFormat.DOCX.getValue());
-    }
-
-
+    /**
+     * 添加水印图片,多了会将文字往下挤,暂时还没有好的解决方法
+     * 代码实例:
+     * FileInputStream fileInputStream = new FileInputStream(new File("C:\\Users\\gelin\\Desktop\\基础数据服务.docx"));
+     * WordWaterMark wordWaterMark = WordWaterMark.builder()
+     * .docInputStream(fileInputStream)
+     * .watermarkImage() 图片流
+     * .outputPath("C:\\Users\\gelin\\Desktop\\bbbb.docx")
+     * .build();
+     * WordOperation.addWatermarkText(wordWaterMark);
+     */
     public static void addWatermarkImage(WordWaterMark wordWaterMark) throws Exception {
         if (paramCheckWatermarkImage(wordWaterMark)) {
             Document doc = new Document(wordWaterMark.getDocInputStream());
             initWordWaterMark(wordWaterMark);
-            int top = wordWaterMark.getMarginTop();
-            int num = wordWaterMark.getNum();
-            for (int i = 0; i < num; i++) {
-                int left = wordWaterMark.getMarginLeft();
-                for (int j = 0; j < num; j++) {
-                    insertWatermarkImage(doc, wordWaterMark.getWatermarkImage(), top, left,
-                            wordWaterMark.getWidth(), wordWaterMark.getHeight(), wordWaterMark.getRotation());
-                    left = left + wordWaterMark.getLoadLeftFactor();
-                }
-                top = top + wordWaterMark.getLoadTopFactor();
-            }
+            Shape watermark = new Shape(doc, ShapeType.IMAGE);
+            watermark.setBehindText(true);
+            watermark.getImageData().setImage(wordWaterMark.getWatermarkImage());
+            insertWatermarkImage(doc, watermark, wordWaterMark.getMarginTop(), wordWaterMark.getMarginLeft(),
+                    wordWaterMark.getWidth(), wordWaterMark.getHeight(), wordWaterMark.getRotation());
             String suffix = getSuffix(wordWaterMark.getOutputPath());
             doc.save(wordWaterMark.getOutputPath(), WordSaveFormat.getValueByName(suffix).getValue());
         }
@@ -208,33 +122,21 @@ public class WordOperation {
         if (wordWaterMark.getMarginLeft() <= 0) {
             wordWaterMark.setMarginLeft(DEFAULT_MARGIN_LEFT);
         }
-        if (wordWaterMark.getNum() <= 0) {
-            wordWaterMark.setNum(DEFAULT_NUM);
-        }
-        if (wordWaterMark.getLoadTopFactor() <= 0) {
-            wordWaterMark.setLoadTopFactor(DEFAULT_LOAD_TOP_FACTOR);
-        }
-        if (wordWaterMark.getLoadLeftFactor() <= 0) {
-            wordWaterMark.setLoadLeftFactor(DEFAULT_LOAD_LEFT_FACTOR);
-        }
     }
 
 
-    private static void insertWatermarkImage(Document doc, InputStream image, int top, int left,
+    private static void insertWatermarkImage(Document doc, Shape watermark, int top, int left,
                                              int width, int height, double rotation) throws Exception {
-        Shape watermark = new Shape(doc, ShapeType.IMAGE);
-        watermark.setBehindText(true);
-        watermark.getImageData().setImage(image);
         setShape(watermark, top, left, width, height, rotation);
         setParagraph(doc, watermark);
     }
 
 
-    private static void insertWatermarkText(Document doc, String watermarkText, int top, int left, String fontFamily,
-                                            int width, int height, double rotation, String color, int radix) throws Exception {
+    private static void setWatermarkText(Document doc, String watermarkText, int top, int left, String fontFamily,
+                                         int width, int height, double rotation, String color, int radix) throws Exception {
         Shape watermark = new Shape(doc, ShapeType.TEXT_PLAIN_TEXT);
         setShape(watermark, top, left, width, height, rotation);
-        insertWatermarkText(doc, watermarkText, fontFamily, color, radix, watermark);
+        setWatermarkText(doc, watermarkText, fontFamily, color, radix, watermark);
     }
 
 
@@ -280,8 +182,8 @@ public class WordOperation {
     }
 
 
-    private static void insertWatermarkText(Document doc, String watermarkText, String fontFamily, String color, int radix,
-                                            Shape watermark) throws Exception {
+    private static void setWatermarkText(Document doc, String watermarkText, String fontFamily, String color, int radix,
+                                         Shape watermark) throws Exception {
         // Create a watermark shape. This will be a WordArt shape.
         // You are free to try other shape types as watermarks.
         // Set up the text of the watermark.
