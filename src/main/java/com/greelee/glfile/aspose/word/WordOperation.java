@@ -95,6 +95,7 @@ public class WordOperation {
                 if (Objects.nonNull(wordImage.getImage()) && StringUtils.isNotBlank(wordImage.getKey())) {
                     builder.moveToMergeField(wordImage.getKey());
                     builder.insertImage(wordImage.getImage(), wordImage.getWidth(), wordImage.getHeight());
+                    closeStream(wordImage.getImage());
                 }
             }
         }
