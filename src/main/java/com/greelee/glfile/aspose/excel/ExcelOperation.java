@@ -29,7 +29,7 @@ public class ExcelOperation {
         InputStream inputStream = ExcelOperation.class.getClassLoader().getResourceAsStream("license.xml");
         License license = new License();
         if(Objects.isNull(inputStream)){
-            throw new RuntimeException("not found license.xml");
+            throw new NullPointerException("not found license.xml");
         }
         license.setLicense(inputStream);
         return true;

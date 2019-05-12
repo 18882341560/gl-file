@@ -47,7 +47,7 @@ public class WordOperation {
         InputStream is = WordOperation.class.getClassLoader().getResourceAsStream("com.aspose.words.lic_2999.xml");
         License license = new License();
         if (Objects.isNull(is)) {
-            throw new RuntimeException("not found license.xml");
+            throw new NullPointerException("not found license.xml");
         }
         license.setLicense(is);
         return true;

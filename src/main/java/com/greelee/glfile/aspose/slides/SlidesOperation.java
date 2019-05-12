@@ -29,7 +29,7 @@ public class SlidesOperation {
         InputStream licenseIs = SlidesOperation.class.getClassLoader().getResourceAsStream("license.xml");
         License license = new License();
         if (Objects.isNull(licenseIs)) {
-            throw new RuntimeException("not found license.xml");
+            throw new NullPointerException("not found license.xml");
         }
         license.setLicense(licenseIs);
         return true;
