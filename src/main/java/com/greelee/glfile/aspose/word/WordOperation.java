@@ -3,9 +3,16 @@ package com.greelee.glfile.aspose.word;
 import com.aspose.words.*;
 import com.google.common.base.Strings;
 import com.greelee.glfile.aspose.constant.WordSaveFormat;
+import com.greelee.glfile.aspose.model.WordImage;
+import com.greelee.glfile.aspose.model.WordReplace;
+import com.greelee.glfile.aspose.model.WordWaterMark;
+import com.greelee.glfile.aspose.util.DocumentUtil;
 import org.apache.commons.lang3.StringUtils;
+
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -67,7 +74,65 @@ public class WordOperation {
     }
 
     /**
-     * 添加水印文字,多了会将文字往下挤,暂时还没有好的解决方法
+     * 自定义域的生成模板
+     */
+    public static void generateTemplateByMailMerge(WordReplace wordReplace) throws Exception {
+        if (generateTemplateParamCheck(wordReplace)) {
+            List filedNames = Objects.requireNonNull(DocumentUtil.getMapKeyValueList(wordReplace.getReplaceTextData())).getKList();
+            List values = Objects.requireNonNull(DocumentUtil.getMapKeyValueList(wordReplace.getReplaceTextData())).getVList();
+            Document doc = new Document(wordReplace.getDocInputStream());
+            doc.getMailMerge().execute((String[]) filedNames.toArray(new String[0]), values.toArray());
+            insertImage(doc, wordReplace.getWordImageList());
+            saveDocument(doc, wordReplace.getOutputPath());
+            closeStream(wordReplace.getDocInputStream());
+        }
+    }
+
+    private static void insertImage(Document doc, List<WordImage> wordImageList) throws Exception {
+        if (DocumentUtil.isNotEmpty(wordImageList)) {
+            DocumentBuilder builder = new DocumentBuilder(doc);
+            for (WordImage wordImage : wordImageList) {
+                if (Objects.nonNull(wordImage.getImage()) && StringUtils.isNotBlank(wordImage.getKey())) {
+                    builder.moveToMergeField(wordImage.getKey());
+                    builder.insertImage(wordImage.getImage(), wordImage.getWidth(), wordImage.getHeight());
+                }
+            }
+        }
+    }
+
+
+    /**
+     * 自定义替换符的生成模板
+     */
+    public static void generateTemplate(WordReplace wordReplace) throws Exception {
+        if (generateTemplateParamCheck(wordReplace)) {
+            Document doc = new Document(wordReplace.getDocInputStream());
+            FindReplaceOptions options = new FindReplaceOptions();
+            Range range = doc.getRange();
+            wordReplace.getReplaceTextData().forEach((k, v) -> {
+                try {
+                    range.replace(k, v, options);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            saveDocument(doc, wordReplace.getOutputPath());
+            closeStream(wordReplace.getDocInputStream());
+        }
+    }
+
+    private static boolean generateTemplateParamCheck(WordReplace wordReplace) {
+        if (Objects.nonNull(wordReplace) && Objects.nonNull(wordReplace.getDocInputStream())
+                && StringUtils.isNotBlank(wordReplace.getOutputPath())
+                && DocumentUtil.isNotEmpty(wordReplace.getReplaceTextData())) {
+            return true;
+        }
+        throw new NullPointerException("wordReplace:" + wordReplace);
+    }
+
+
+    /**
+     * 添加水印文字,多了会将文字往下挤
      * 代码实例:
      * FileInputStream fileInputStream = new FileInputStream(new File("C:\\Users\\gelin\\Desktop\\基础数据服务.docx"));
      * WordWaterMark wordWaterMark = WordWaterMark.builder()
@@ -84,14 +149,14 @@ public class WordOperation {
             setWatermarkText(doc, wordWaterMark.getWatermarkText(), wordWaterMark.getMarginTop(), wordWaterMark.getMarginLeft(),
                     wordWaterMark.getFontFamily(), wordWaterMark.getWidth(), wordWaterMark.getHeight(),
                     wordWaterMark.getRotation(), wordWaterMark.getColor(), wordWaterMark.getRadix());
-            String suffix = getSuffix(wordWaterMark.getOutputPath());
-            doc.save(wordWaterMark.getOutputPath(), WordSaveFormat.getValueByName(suffix).getValue());
+            saveDocument(doc, wordWaterMark.getOutputPath());
+            close(wordWaterMark);
         }
     }
 
 
     /**
-     * 添加水印图片,多了会将文字往下挤,暂时还没有好的解决方法
+     * 添加水印图片,多了会将文字往下挤
      * 代码实例:
      * FileInputStream fileInputStream = new FileInputStream(new File("C:\\Users\\gelin\\Desktop\\基础数据服务.docx"));
      * WordWaterMark wordWaterMark = WordWaterMark.builder()
@@ -110,8 +175,29 @@ public class WordOperation {
             watermark.getImageData().setImage(wordWaterMark.getWatermarkImage());
             insertWatermarkImage(doc, watermark, wordWaterMark.getMarginTop(), wordWaterMark.getMarginLeft(),
                     wordWaterMark.getWidth(), wordWaterMark.getHeight(), wordWaterMark.getRotation());
-            String suffix = getSuffix(wordWaterMark.getOutputPath());
-            doc.save(wordWaterMark.getOutputPath(), WordSaveFormat.getValueByName(suffix).getValue());
+            saveDocument(doc, wordWaterMark.getOutputPath());
+            close(wordWaterMark);
+        }
+    }
+
+    private static void saveDocument(Document document, String outputPath) throws Exception {
+        String suffix = DocumentUtil.getSuffix(outputPath);
+        document.save(outputPath, WordSaveFormat.getValueByName(suffix).getValue());
+    }
+
+
+    private static void close(WordWaterMark wordWaterMark) throws IOException {
+        closeStream(wordWaterMark.getWatermarkImage());
+        closeStream(wordWaterMark.getDocInputStream());
+    }
+
+    private static void closeStream(InputStream inputStream) {
+        if (Objects.nonNull(inputStream)) {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -256,8 +342,5 @@ public class WordOperation {
         throw new NullPointerException("wordWaterMark:" + wordWaterMark);
     }
 
-    private static String getSuffix(String path) {
-        return path.substring(path.lastIndexOf(".") + 1);
-    }
 
 }

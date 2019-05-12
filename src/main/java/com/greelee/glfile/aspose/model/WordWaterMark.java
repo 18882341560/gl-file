@@ -1,4 +1,4 @@
-package com.greelee.glfile.aspose.word;
+package com.greelee.glfile.aspose.model;
 
 import lombok.*;
 
@@ -52,15 +52,15 @@ public class WordWaterMark implements Serializable {
      */
     private int marginLeft;
     /**
-     * 字体的长度
+     * 字体/图片的长度
      */
     private int width;
     /**
-     * 字体的高度
+     * 字体/图片的高度
      */
     private int height;
     /**
-     * 左下到右上,角度
+     * 左下到右上倾斜,角度
      */
     private double rotation;
     /**
