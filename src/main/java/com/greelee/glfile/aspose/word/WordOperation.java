@@ -14,7 +14,6 @@ import java.io.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author: gl
@@ -75,12 +74,6 @@ public class WordOperation {
         Document doc = new Document(inputStream);
         doc.save(os, wordSaveFormat.getValue());
     }
-
-
-    public static void main(String[] args) throws Exception {
-        getDocumentImages(new FileInputStream("C:\\Users\\gelin\\Desktop\\输气处培训系统后端设计文档.docx"));
-    }
-
 
     /**
      * 将word的图片获取出来,保存
@@ -160,7 +153,7 @@ public class WordOperation {
                         throw new NullPointerException(directory);
                     }
                 }
-                String fileName = directory + Instant.now().getEpochSecond() + "." + suffixName;
+                String fileName = directory + File.separator + Instant.now().getEpochSecond() + "." + suffixName;
                 imageData.save(fileName);
                 list.add(fileName);
             }
