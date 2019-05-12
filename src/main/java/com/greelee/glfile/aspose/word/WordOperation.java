@@ -2,6 +2,7 @@ package com.greelee.glfile.aspose.word;
 
 import com.aspose.words.*;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.greelee.glfile.aspose.constant.WordSaveFormat;
 import com.greelee.glfile.aspose.model.WordImage;
 import com.greelee.glfile.aspose.model.WordReplace;
@@ -9,11 +10,11 @@ import com.greelee.glfile.aspose.model.WordWaterMark;
 import com.greelee.glfile.aspose.util.DocumentUtil;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author: gl
@@ -36,6 +37,8 @@ public class WordOperation {
     private static final double DEFAULT_ROTATION = 0;
     private static final int DEFAULT_MARGIN_TOP = 250;
     private static final int DEFAULT_MARGIN_LEFT = 450;
+
+    private static final String DEFAULT_SUFFIX_NAME = "png";
 
     private WordOperation() {
     }
@@ -73,10 +76,119 @@ public class WordOperation {
         doc.save(os, wordSaveFormat.getValue());
     }
 
+
+    public static void main(String[] args) throws Exception {
+        getDocumentImages(new FileInputStream("C:\\Users\\gelin\\Desktop\\输气处培训系统后端设计文档.docx"));
+    }
+
+
+    /**
+     * 将word的图片获取出来,保存
+     *
+     * @param docInputStream word文件流
+     * @param directory      要保存的目录
+     * @param suffixName     后缀名称
+     * @return 文件路径名称
+     */
+    public static List<String> saveImagesToDocument(InputStream docInputStream, String directory, String suffixName) throws Exception {
+        if (Objects.nonNull(directory) && StringUtils.isNotBlank(directory)) {
+            if (!StringUtils.isNotBlank(suffixName)) {
+                suffixName = DEFAULT_SUFFIX_NAME;
+            }
+            Document doc = new Document(docInputStream);
+            closeStream(docInputStream);
+            return saveImage(doc, directory, suffixName);
+        }
+        return null;
+    }
+
+    /**
+     * 将word的图片获取出来,保存
+     *
+     * @param docFileName word路径
+     * @param directory   要保存的目录
+     * @param suffixName  后缀名称
+     * @return 文件路径名称
+     */
+    public static List<String> saveImagesToDocument(String docFileName, String directory, String suffixName) throws Exception {
+        if (StringUtils.isNotBlank(docFileName) && StringUtils.isNotBlank(directory)) {
+            if (!StringUtils.isNotBlank(suffixName)) {
+                suffixName = DEFAULT_SUFFIX_NAME;
+            }
+            Document doc = new Document(docFileName);
+            return saveImage(doc, directory, suffixName);
+        }
+        return null;
+    }
+
+
+    /**
+     * 获取word里面的所有图片
+     */
+    public static List<byte[]> getDocumentImages(InputStream docInputStream) throws Exception {
+        if (Objects.nonNull(docInputStream)) {
+            Document doc = new Document(docInputStream);
+            closeStream(docInputStream);
+            return getImageBytes(doc);
+        }
+        return null;
+    }
+
+    /**
+     * 获取word里面的所有图片
+     */
+    public static List<byte[]> getDocumentImages(String fileName) throws Exception {
+        if (StringUtils.isNotBlank(fileName)) {
+            Document doc = new Document(fileName);
+            return getImageBytes(doc);
+        }
+        return null;
+    }
+
+
+    private static List<String> saveImage(Document document, String directory, String suffixName) throws Exception {
+        NodeCollection childNodes = document.getChildNodes(NodeType.SHAPE, true);
+        Node[] nodes = childNodes.toArray();
+        List<String> list = Lists.newArrayList();
+        if (Objects.nonNull(nodes) && nodes.length > 0) {
+            for (Node node : nodes) {
+                Shape shape = (Shape) node;
+                ImageData imageData = shape.getImageData();
+                File file = new File(directory);
+                if (!file.exists()) {
+                    if (!file.mkdirs()) {
+                        throw new NullPointerException(directory);
+                    }
+                }
+                String fileName = directory + Instant.now().getEpochSecond() + "." + suffixName;
+                imageData.save(fileName);
+                list.add(fileName);
+            }
+            return list;
+        }
+        return null;
+    }
+
+    private static List<byte[]> getImageBytes(Document doc) throws Exception {
+        NodeCollection childNodes = doc.getChildNodes(NodeType.SHAPE, true);
+        Node[] nodes = childNodes.toArray();
+        List<byte[]> list = Lists.newArrayList();
+        if (Objects.nonNull(nodes) && nodes.length > 0) {
+            for (Node node : nodes) {
+                Shape shape = (Shape) node;
+                ImageData imageData = shape.getImageData();
+                list.add(imageData.getImageBytes());
+            }
+            return list;
+        }
+        return null;
+    }
+
+
     /**
      * 自定义域的生成模板
      */
-    public static void generateTemplateByMailMerge(WordReplace wordReplace) throws Exception {
+    public static void generateTemplateToMailMerge(WordReplace wordReplace) throws Exception {
         if (generateTemplateParamCheck(wordReplace)) {
             List filedNames = Objects.requireNonNull(DocumentUtil.getMapKeyValueList(wordReplace.getReplaceTextData())).getKList();
             List values = Objects.requireNonNull(DocumentUtil.getMapKeyValueList(wordReplace.getReplaceTextData())).getVList();
