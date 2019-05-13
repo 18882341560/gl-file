@@ -183,10 +183,10 @@ public class WordOperation {
      */
     public static void generateTemplateToMailMerge(WordReplace wordReplace) throws Exception {
         if (generateTemplateParamCheck(wordReplace)) {
-            List filedNames = Objects.requireNonNull(DocumentUtil.getMapKeyValueList(wordReplace.getReplaceTextData())).getKList();
-            List values = Objects.requireNonNull(DocumentUtil.getMapKeyValueList(wordReplace.getReplaceTextData())).getVList();
+            List<String> filedNames = Objects.requireNonNull(DocumentUtil.getMapKeyValueList(wordReplace.getReplaceTextData())).getKList();
+            List<String> values = Objects.requireNonNull(DocumentUtil.getMapKeyValueList(wordReplace.getReplaceTextData())).getVList();
             Document doc = new Document(wordReplace.getDocInputStream());
-            doc.getMailMerge().execute((String[]) filedNames.toArray(new String[0]), values.toArray());
+            doc.getMailMerge().execute(filedNames.toArray(new String[0]), values.toArray());
             insertImage(doc, wordReplace.getWordImageList());
             saveDocument(doc, wordReplace.getOutputPath());
             closeStream(wordReplace.getDocInputStream());

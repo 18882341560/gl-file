@@ -35,10 +35,10 @@ public class DocumentUtil implements Serializable {
         return null != collection && !collection.isEmpty();
     }
 
-    @SuppressWarnings("unchecked")
-    public static <k, v> MapModel getMapKeyValueList(Map<k, v> map) {
+
+    public static <k, v> MapModel<k,v> getMapKeyValueList(Map<k, v> map) {
         if (DocumentUtil.isNotEmpty(map)) {
-            MapModel mapModel = new MapModel<k, v>();
+            MapModel<k,v> mapModel = new MapModel<k, v>();
             List<k> kList = Lists.newArrayList();
             List<v> vList = Lists.newArrayList();
             map.forEach((k1, v1) -> {
