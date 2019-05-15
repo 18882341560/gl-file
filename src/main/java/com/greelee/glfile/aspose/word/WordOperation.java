@@ -49,10 +49,23 @@ public class WordOperation {
         InputStream is = WordOperation.class.getClassLoader().getResourceAsStream("com.aspose.words.lic_2999.xml");
         License license = new License();
         if (Objects.isNull(is)) {
-            throw new NullPointerException("not found license.xml");
+            throw new NullPointerException("not found com.aspose.words.lic_2999.xml");
         }
         license.setLicense(is);
         return true;
+    }
+
+
+    public static void main(String[] args) throws Exception {
+        Document doc = new Document("C:\\Users\\gelin\\Desktop\\基础数据服务.docx");
+        //所有段落
+        ParagraphCollection paragraphs = doc.getFirstSection().getBody().getParagraphs();
+        if (paragraphs.getCount() > 0) {
+            for (int i = 0; i < paragraphs.getCount(); i++) {
+                System.out.println(paragraphs.get(i).getText());
+            }
+
+        }
     }
 
 
@@ -67,13 +80,34 @@ public class WordOperation {
         if (Objects.isNull(inputStream) || Strings.isNullOrEmpty(outputPath)) {
             throw new RuntimeException("inputStream is null or outputPath is null or empty");
         }
-        if (!isLicense()) {
+        if (isLicense()) {
+            Document doc = new Document(inputStream);
+            doc.save(outputPath, wordSaveFormat.getValue());
+            closeStream(inputStream);
+        } else {
             throw new RuntimeException("words license validation failed");
         }
-        FileOutputStream os = new FileOutputStream(outputPath);
-        Document doc = new Document(inputStream);
-        doc.save(os, wordSaveFormat.getValue());
     }
+
+    /**
+     * word转换为其他文件
+     *
+     * @param srcPath        源文件
+     * @param outputPath     存储的地址
+     * @param wordSaveFormat 转换的类型
+     */
+    public static void convert(String srcPath, String outputPath, WordSaveFormat wordSaveFormat) throws Exception {
+        if (StringUtils.isNotBlank(srcPath) || Strings.isNullOrEmpty(outputPath)) {
+            throw new RuntimeException("srcPath or outputPath");
+        }
+        if (isLicense()) {
+            Document doc = new Document(srcPath);
+            doc.save(outputPath, wordSaveFormat.getValue());
+        } else {
+            throw new RuntimeException("words license validation failed");
+        }
+    }
+
 
     /**
      * 将word的图片获取出来,保存
@@ -81,7 +115,7 @@ public class WordOperation {
      * @param docInputStream word文件流
      * @param directory      要保存的目录
      * @param suffixName     后缀名称
-     * @return 文件路径名称
+     * @return 文件路径
      */
     public static List<String> saveImagesToDocument(InputStream docInputStream, String directory, String suffixName) throws Exception {
         if (Objects.nonNull(directory) && StringUtils.isNotBlank(directory)) {

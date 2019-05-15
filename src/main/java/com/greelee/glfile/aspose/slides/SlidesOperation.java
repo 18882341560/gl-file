@@ -1,7 +1,6 @@
 package com.greelee.glfile.aspose.slides;
 
-import com.aspose.slides.License;
-import com.aspose.slides.Presentation;
+import com.aspose.slides.*;
 import com.google.common.base.Strings;
 import com.greelee.glfile.aspose.constant.SlidesSaveFormat;
 
@@ -22,8 +21,6 @@ public class SlidesOperation {
 
     /**
      * 去除水映 破解了的
-     *
-     * @return
      */
     private static boolean isLicense() {
         InputStream licenseIs = SlidesOperation.class.getClassLoader().getResourceAsStream("license.xml");

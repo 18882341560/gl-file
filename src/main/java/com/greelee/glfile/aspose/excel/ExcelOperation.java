@@ -1,7 +1,6 @@
 package com.greelee.glfile.aspose.excel;
 
-import com.aspose.cells.License;
-import com.aspose.cells.Workbook;
+import com.aspose.cells.*;
 import com.google.common.base.Strings;
 import com.greelee.glfile.aspose.constant.ExcelSaveFormat;
 
@@ -23,16 +22,19 @@ public class ExcelOperation {
 
     /**
      * 去除水印，破解了的,这个方法不能公共，每种都有一个license
-     * @return
      */
     private static boolean isLicense() {
         InputStream inputStream = ExcelOperation.class.getClassLoader().getResourceAsStream("license.xml");
         License license = new License();
-        if(Objects.isNull(inputStream)){
+        if (Objects.isNull(inputStream)) {
             throw new NullPointerException("not found license.xml");
         }
         license.setLicense(inputStream);
         return true;
+    }
+
+    public static void main(String[] args) {
+        isLicense();
     }
 
 
@@ -47,7 +49,7 @@ public class ExcelOperation {
         if (Objects.isNull(inputStream) || Strings.isNullOrEmpty(outputPath)) {
             throw new RuntimeException("inputStream is null or outputPath is null or empty");
         }
-        if(!isLicense()){
+        if (!isLicense()) {
             throw new RuntimeException("cells license validation failed");
         }
         Workbook wb = new Workbook(inputStream);
