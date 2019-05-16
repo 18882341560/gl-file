@@ -1,7 +1,9 @@
 package com.greelee.glfile.aspose.util;
 
 import com.google.common.collect.Lists;
+import com.greelee.glfile.aspose.constant.PatternConstant;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -35,10 +37,17 @@ public class DocumentUtil implements Serializable {
         return null != collection && !collection.isEmpty();
     }
 
+    public static String replaceBlank(String str) {
+        if (StringUtils.isNotBlank(str)) {
+            return PatternConstant.SPECIAL_CHARACTERS.matcher(str).replaceAll("");
+        }
+        return null;
+    }
 
-    public static <k, v> MapModel<k,v> getMapKeyValueList(Map<k, v> map) {
+
+    public static <k, v> MapModel<k, v> getMapKeyValueList(Map<k, v> map) {
         if (DocumentUtil.isNotEmpty(map)) {
-            MapModel<k,v> mapModel = new MapModel<k, v>();
+            MapModel<k, v> mapModel = new MapModel<k, v>();
             List<k> kList = Lists.newArrayList();
             List<v> vList = Lists.newArrayList();
             map.forEach((k1, v1) -> {

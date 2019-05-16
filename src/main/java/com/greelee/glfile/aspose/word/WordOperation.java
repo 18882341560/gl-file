@@ -4,14 +4,15 @@ import com.aspose.words.*;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.greelee.glfile.aspose.constant.WordSaveFormat;
-import com.greelee.glfile.aspose.model.WordImage;
-import com.greelee.glfile.aspose.model.WordReplace;
-import com.greelee.glfile.aspose.model.WordWaterMark;
+import com.greelee.glfile.aspose.model.*;
 import com.greelee.glfile.aspose.util.DocumentUtil;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,6 +39,9 @@ public class WordOperation {
     private static final int DEFAULT_MARGIN_LEFT = 450;
 
     private static final String DEFAULT_SUFFIX_NAME = "png";
+    private static final String SEPARATOR = "\u0007";
+    private static final String REPLACEMENT = "|";
+    private static final String ERROR_HEADERFOOTER = "PAGE";
 
     private WordOperation() {
     }
@@ -55,17 +59,126 @@ public class WordOperation {
         return true;
     }
 
+    /**
+     * 获取doc中的表格内容
+     */
+    public static List<WordTable> getTable(String srcPath) throws Exception {
+        if (StringUtils.isNotBlank(srcPath)) {
+            Document document = new Document(srcPath);
+            return getTableContent(document);
+        }
+        throw new NullPointerException(srcPath);
+    }
+
+    /**
+     * 获取doc中的表格内容
+     */
+    public static List<WordTable> getTable(InputStream inputStream) throws Exception {
+        Document document = new Document(Objects.requireNonNull(inputStream));
+        closeStream(inputStream);
+        return getTableContent(document);
+    }
+
+    /**
+     * 获取doc中的表格内容
+     */
+    private static List<WordTable> getTableContent(Document document) {
+        NodeCollection childNodes = Objects.requireNonNull(document).getChildNodes(NodeType.TABLE, true);
+        Node[] nodes = childNodes.toArray();
+        List<WordTable> listList = Lists.newArrayList();
+        for (Node node : nodes) {
+            Table table = (Table) node;
+            WordTable wordTable = WordTable.builder().build();
+            String[] rows = table.getText().split(SEPARATOR + SEPARATOR);
+            List<WordTable.Rows> rowsList = Lists.newArrayList();
+            for (int i = 0; i < rows.length; i++) {
+                WordTable.Rows r = new WordTable.Rows();
+                r.setRowIndex(i);
+                String[] cells = rows[i].split(SEPARATOR);
+                r.setCellList(Arrays.asList(cells));
+                rowsList.add(r);
+            }
+            wordTable.setTableList(rowsList);
+            listList.add(wordTable);
+        }
+        return listList;
+    }
+
+
+    public static WordHeaderFooter getHeaderFooter(String srcPath) throws Exception {
+        if (StringUtils.isNotBlank(srcPath)) {
+            Document document = new Document(srcPath);
+            return getHeaderFooter(document);
+        }
+        throw new NullPointerException(srcPath);
+    }
+
+    public static WordHeaderFooter getHeaderFooter(InputStream inputStream) throws Exception {
+        Document document = new Document(Objects.requireNonNull(inputStream));
+        WordHeaderFooter wordHeaderFooter = getHeaderFooter(document);
+        closeStream(inputStream);
+        return wordHeaderFooter;
+    }
+
+    public static WordHeaderFooter getHeaderFooter(Document document) {
+        SectionCollection sections = Objects.requireNonNull(document).getSections();
+        HeaderFooterCollection headersFooters = sections.get(0).getHeadersFooters();
+        HeaderFooter[] headerFooters = headersFooters.toArray();
+        WordHeaderFooter wordHeaderFooter = WordHeaderFooter.builder()
+                .build();
+        for (HeaderFooter headerFooter : headerFooters) {
+            String text = DocumentUtil.replaceBlank(headerFooter.getText());
+            if (StringUtils.isNotBlank(text)) {
+                if (text.indexOf(ERROR_HEADERFOOTER) > 0) {
+                    wordHeaderFooter.getErrorList().add(text);
+                } else {
+                    if (Objects.isNull(wordHeaderFooter.getHeader())) {
+                        wordHeaderFooter.setHeader(text.replaceAll(SEPARATOR, REPLACEMENT));
+                        continue;
+                    }
+                    if (Objects.isNull(wordHeaderFooter.getFooter())) {
+                        wordHeaderFooter.setFooter(text.replaceAll(SEPARATOR, REPLACEMENT));
+                        break;
+                    }
+                }
+            }
+        }
+        return wordHeaderFooter;
+    }
+
 
     public static void main(String[] args) throws Exception {
-        Document doc = new Document("C:\\Users\\gelin\\Desktop\\基础数据服务.docx");
-        //所有段落
-        ParagraphCollection paragraphs = doc.getFirstSection().getBody().getParagraphs();
-        if (paragraphs.getCount() > 0) {
-            for (int i = 0; i < paragraphs.getCount(); i++) {
-                System.out.println(paragraphs.get(i).getText());
-            }
+        Document doc = new Document("C:\\Users\\gelin\\Desktop\\输气处培训系统后端设计文档.docx");
+        System.out.println(getHeaderFooter(doc));
+//        SectionCollection sections = doc.getSections();
+//        Section[] toArray = sections.toArray();
+//        for (Section section : toArray) {
+//            HeaderFooterCollection headersFooters = section.getHeadersFooters();
+//            HeaderFooter[] headerFooters = headersFooters.toArray();
+//            for (HeaderFooter headerFooter : headerFooters) {
+//                System.out.println("-----" + headerFooter.getText());
+//            }
+//        }
 
-        }
+//        Section[] toArray = sections.toArray();
+//        for (int i = 0; i < toArray.length; i++) {
+//            Section s = toArray[i];
+//            Paragraph[] paragraphs = s.getBody().getParagraphs().toArray();
+//            System.out.println(paragraphs.length);
+//            for (int j = 0; j < paragraphs.length; j++) {
+//                System.out.println(paragraphs[j].getText());
+//            }
+//            System.out.println("-------------------------------");
+//        }
+
+//        //所有段落
+//        ParagraphCollection paragraphs = doc.getFirstSection().getBody().getParagraphs();
+//        if (paragraphs.getCount() > 0) {
+//            for (int i = 0; i < paragraphs.getCount(); i++) {
+//                System.out.println(paragraphs.get(i).getText());
+//                System.out.println(doc.getLastSection().getBody().getParagraphs().get(i).getText());
+//            }
+//        }
     }
 
 
@@ -78,14 +191,14 @@ public class WordOperation {
      */
     public static void convert(InputStream inputStream, String outputPath, WordSaveFormat wordSaveFormat) throws Exception {
         if (Objects.isNull(inputStream) || Strings.isNullOrEmpty(outputPath)) {
-            throw new RuntimeException("inputStream is null or outputPath is null or empty");
+            throw new NullPointerException("inputStream or outputPath ");
         }
         if (isLicense()) {
             Document doc = new Document(inputStream);
             doc.save(outputPath, wordSaveFormat.getValue());
             closeStream(inputStream);
         } else {
-            throw new RuntimeException("words license validation failed");
+            throw new IllegalStateException("words license validation failed");
         }
     }
 
@@ -98,13 +211,13 @@ public class WordOperation {
      */
     public static void convert(String srcPath, String outputPath, WordSaveFormat wordSaveFormat) throws Exception {
         if (StringUtils.isNotBlank(srcPath) || Strings.isNullOrEmpty(outputPath)) {
-            throw new RuntimeException("srcPath or outputPath");
+            throw new NullPointerException("srcPath or outputPath");
         }
         if (isLicense()) {
             Document doc = new Document(srcPath);
             doc.save(outputPath, wordSaveFormat.getValue());
         } else {
-            throw new RuntimeException("words license validation failed");
+            throw new IllegalStateException("words license validation failed");
         }
     }
 
@@ -126,7 +239,7 @@ public class WordOperation {
             closeStream(docInputStream);
             return saveImage(doc, directory, suffixName);
         }
-        return null;
+        throw new NullPointerException();
     }
 
     /**
@@ -145,7 +258,7 @@ public class WordOperation {
             Document doc = new Document(docFileName);
             return saveImage(doc, directory, suffixName);
         }
-        return null;
+        throw new NullPointerException();
     }
 
 
@@ -153,12 +266,9 @@ public class WordOperation {
      * 获取word里面的所有图片
      */
     public static List<byte[]> getDocumentImages(InputStream docInputStream) throws Exception {
-        if (Objects.nonNull(docInputStream)) {
-            Document doc = new Document(docInputStream);
-            closeStream(docInputStream);
-            return getImageBytes(doc);
-        }
-        return null;
+        Document doc = new Document(Objects.requireNonNull(docInputStream));
+        closeStream(docInputStream);
+        return getImageBytes(doc);
     }
 
     /**
@@ -169,7 +279,7 @@ public class WordOperation {
             Document doc = new Document(fileName);
             return getImageBytes(doc);
         }
-        return null;
+        throw new NullPointerException(fileName);
     }
 
 
@@ -332,12 +442,10 @@ public class WordOperation {
     }
 
     private static void closeStream(InputStream inputStream) {
-        if (Objects.nonNull(inputStream)) {
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            Objects.requireNonNull(inputStream).close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
