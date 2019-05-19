@@ -25,7 +25,7 @@ public class WordImage implements Serializable {
     public static final double DEFAULT_HEIGHT = 100;
 
     /**
-     * 替换的域名
+     * 替换的域名/书签名字
      */
     private String key;
     /**

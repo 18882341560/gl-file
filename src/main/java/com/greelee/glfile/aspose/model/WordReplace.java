@@ -36,7 +36,7 @@ public class WordReplace implements Serializable {
      */
     private Map<String, String> replaceTextData;
     /**
-     * 要替换成图片,只支持域的方式
+     * 要替换成图片,只支持域/书签的方式书签
      */
     private List<WordImage> wordImageList;
 }

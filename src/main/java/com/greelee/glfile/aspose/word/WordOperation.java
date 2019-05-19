@@ -41,7 +41,7 @@ public class WordOperation {
     private static final String DEFAULT_SUFFIX_NAME = "png";
     private static final String SEPARATOR = "\u0007";
     private static final String REPLACEMENT = "|";
-    private static final String ERROR_HEADERFOOTER = "PAGE";
+    private static final String ERROR_HEADER_FOOTER_KEYWORD = "PAGE";
 
     private WordOperation() {
     }
@@ -67,7 +67,7 @@ public class WordOperation {
             Document document = new Document(srcPath);
             return getTableContent(document);
         }
-        throw new NullPointerException(srcPath);
+        throw new NullPointerException("srcPath:" + srcPath);
     }
 
     /**
@@ -105,14 +105,20 @@ public class WordOperation {
     }
 
 
+    /**
+     * 获取doc的页眉页脚
+     */
     public static WordHeaderFooter getHeaderFooter(String srcPath) throws Exception {
         if (StringUtils.isNotBlank(srcPath)) {
             Document document = new Document(srcPath);
             return getHeaderFooter(document);
         }
-        throw new NullPointerException(srcPath);
+        throw new NullPointerException("srcPath:" + srcPath);
     }
 
+    /**
+     * 获取doc的页眉页脚
+     */
     public static WordHeaderFooter getHeaderFooter(InputStream inputStream) throws Exception {
         Document document = new Document(Objects.requireNonNull(inputStream));
         WordHeaderFooter wordHeaderFooter = getHeaderFooter(document);
@@ -129,7 +135,7 @@ public class WordOperation {
         for (HeaderFooter headerFooter : headerFooters) {
             String text = DocumentUtil.replaceBlank(headerFooter.getText());
             if (StringUtils.isNotBlank(text)) {
-                if (text.indexOf(ERROR_HEADERFOOTER) > 0) {
+                if (text.indexOf(ERROR_HEADER_FOOTER_KEYWORD) > 0) {
                     wordHeaderFooter.getErrorList().add(text);
                 } else {
                     if (Objects.isNull(wordHeaderFooter.getHeader())) {
@@ -147,38 +153,49 @@ public class WordOperation {
     }
 
 
-    public static void main(String[] args) throws Exception {
-        Document doc = new Document("C:\\Users\\gelin\\Desktop\\输气处培训系统后端设计文档.docx");
-        System.out.println(getHeaderFooter(doc));
-//        SectionCollection sections = doc.getSections();
-//        Section[] toArray = sections.toArray();
-//        for (Section section : toArray) {
-//            HeaderFooterCollection headersFooters = section.getHeadersFooters();
-//            HeaderFooter[] headerFooters = headersFooters.toArray();
-//            for (HeaderFooter headerFooter : headerFooters) {
-//                System.out.println("-----" + headerFooter.getText());
-//            }
-//        }
+    /**
+     * 获取doc内容,每一个换行符是一个
+     */
+    public static List<String> getText(String srcPath) throws Exception {
+        if (StringUtils.isNotBlank(srcPath)) {
+            Document document = new Document(srcPath);
+            return getText(document);
+        }
+        throw new NullPointerException("srcPath:" + srcPath);
+    }
 
-//        Section[] toArray = sections.toArray();
-//        for (int i = 0; i < toArray.length; i++) {
-//            Section s = toArray[i];
-//            Paragraph[] paragraphs = s.getBody().getParagraphs().toArray();
-//            System.out.println(paragraphs.length);
-//            for (int j = 0; j < paragraphs.length; j++) {
-//                System.out.println(paragraphs[j].getText());
-//            }
-//            System.out.println("-------------------------------");
-//        }
+    /**
+     * 获取doc内容,每一个换行符是一个
+     */
+    public static List<String> getText(InputStream inputStream) throws Exception {
+        Document document = new Document(Objects.requireNonNull(inputStream));
+        closeStream(inputStream);
+        return getText(document);
+    }
 
-//        //所有段落
-//        ParagraphCollection paragraphs = doc.getFirstSection().getBody().getParagraphs();
-//        if (paragraphs.getCount() > 0) {
-//            for (int i = 0; i < paragraphs.getCount(); i++) {
-//                System.out.println(paragraphs.get(i).getText());
-//                System.out.println(doc.getLastSection().getBody().getParagraphs().get(i).getText());
-//            }
-//        }
+    /**
+     * 获取doc内容,每一个换行符是一个
+     */
+    public static List<String> getText(Document document) {
+        if (Objects.nonNull(document)) {
+            int count = document.getFirstSection().getBody().getCount();
+            if (count > 0) {
+                List<String> list = Lists.newArrayList();
+                SectionCollection sections = document.getSections();
+                Section[] array = sections.toArray();
+                for (Section section : array) {
+                    ParagraphCollection paragraphCollection = section.getBody().getParagraphs();
+                    Paragraph[] toArray = paragraphCollection.toArray();
+                    for (Paragraph paragraph : toArray) {
+                        list.add(paragraph.getText());
+                    }
+                }
+                return list;
+            } else {
+                return null;
+            }
+        }
+        throw new NullPointerException("document:" + null);
     }
 
 
@@ -279,7 +296,7 @@ public class WordOperation {
             Document doc = new Document(fileName);
             return getImageBytes(doc);
         }
-        throw new NullPointerException(fileName);
+        throw new NullPointerException("fileName:" + fileName);
     }
 
 
@@ -331,18 +348,31 @@ public class WordOperation {
             List<String> values = Objects.requireNonNull(DocumentUtil.getMapKeyValueList(wordReplace.getReplaceTextData())).getVList();
             Document doc = new Document(wordReplace.getDocInputStream());
             doc.getMailMerge().execute(filedNames.toArray(new String[0]), values.toArray());
-            insertImage(doc, wordReplace.getWordImageList());
+            insertImageByField(doc, wordReplace.getWordImageList());
             saveDocument(doc, wordReplace.getOutputPath());
             closeStream(wordReplace.getDocInputStream());
         }
     }
 
-    private static void insertImage(Document doc, List<WordImage> wordImageList) throws Exception {
+    private static void insertImageByField(Document doc, List<WordImage> wordImageList) throws Exception {
         if (DocumentUtil.isNotEmpty(wordImageList)) {
             DocumentBuilder builder = new DocumentBuilder(doc);
             for (WordImage wordImage : wordImageList) {
                 if (Objects.nonNull(wordImage.getImage()) && StringUtils.isNotBlank(wordImage.getKey())) {
                     builder.moveToMergeField(wordImage.getKey());
+                    builder.insertImage(wordImage.getImage(), wordImage.getWidth(), wordImage.getHeight());
+                    closeStream(wordImage.getImage());
+                }
+            }
+        }
+    }
+
+    private static void insertImageByBookmark(Document doc, List<WordImage> wordImageList) throws Exception {
+        if (DocumentUtil.isNotEmpty(wordImageList)) {
+            DocumentBuilder builder = new DocumentBuilder(doc);
+            for (WordImage wordImage : wordImageList) {
+                if (Objects.nonNull(wordImage.getImage()) && StringUtils.isNotBlank(wordImage.getKey())) {
+                    builder.moveToBookmark(wordImage.getKey());
                     builder.insertImage(wordImage.getImage(), wordImage.getWidth(), wordImage.getHeight());
                     closeStream(wordImage.getImage());
                 }
@@ -366,6 +396,7 @@ public class WordOperation {
                     e.printStackTrace();
                 }
             });
+            insertImageByBookmark(doc, wordReplace.getWordImageList());
             saveDocument(doc, wordReplace.getOutputPath());
             closeStream(wordReplace.getDocInputStream());
         }
