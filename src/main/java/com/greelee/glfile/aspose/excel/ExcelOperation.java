@@ -6,6 +6,9 @@ import com.greelee.glfile.aspose.constant.ExcelSaveFormat;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -33,9 +36,31 @@ public class ExcelOperation {
         return true;
     }
 
-    public static void main(String[] args) {
-        isLicense();
+    public static void main(String[] args) throws Exception {
+        Workbook workbook = new Workbook("C:\\Users\\gelin\\Desktop\\test.xlsx");
+        WorksheetCollection worksheets = workbook.getWorksheets();
+        Worksheet worksheet = worksheets.get(0);
+        Cells cells = worksheet.getCells();
+        int maxRow = cells.getMaxDataRow() + 1;
+        int maxColumn = cells.getMaxDataColumn() + 1;
+        for (int i = 0; i < maxRow; i++) {
+            for (int j = 0; j < maxColumn; j++) {
+                System.out.println(cells.get(i, j).getType());
+            }
+        }
     }
+
+    public static String[][] getExcelContent(String srcPath, int sheet) throws Exception {
+        Workbook workbook = new Workbook(srcPath);
+        WorksheetCollection worksheets = workbook.getWorksheets();
+        Worksheet worksheet = worksheets.get(sheet);
+        Cells cells = worksheet.getCells();
+        int maxRow = cells.getMaxDataRow() + 1;
+        int maxColumn = cells.getMaxDataColumn() + 1;
+        return null;
+    }
+
+
 
 
     /**
@@ -47,10 +72,10 @@ public class ExcelOperation {
      */
     public static void convert(InputStream inputStream, String outputPath, ExcelSaveFormat excelSaveFormat) throws Exception {
         if (Objects.isNull(inputStream) || Strings.isNullOrEmpty(outputPath)) {
-            throw new RuntimeException("inputStream is null or outputPath is null or empty");
+            throw new RuntimeException("inputStream or outputPath ");
         }
         if (!isLicense()) {
-            throw new RuntimeException("cells license validation failed");
+            throw new IllegalArgumentException("cells license validation failed");
         }
         Workbook wb = new Workbook(inputStream);
         FileOutputStream fileOS = new FileOutputStream(outputPath);

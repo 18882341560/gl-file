@@ -4,6 +4,7 @@ import com.aspose.words.*;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.greelee.glfile.aspose.constant.WordSaveFormat;
+import com.greelee.glfile.aspose.exception.WordException;
 import com.greelee.glfile.aspose.model.*;
 import com.greelee.glfile.aspose.util.DocumentUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +54,7 @@ public class WordOperation {
         InputStream is = WordOperation.class.getClassLoader().getResourceAsStream("com.aspose.words.lic_2999.xml");
         License license = new License();
         if (Objects.isNull(is)) {
-            throw new NullPointerException("not found com.aspose.words.lic_2999.xml");
+            throw new WordException("not found com.aspose.words.lic_2999.xml");
         }
         license.setLicense(is);
         return true;
@@ -67,7 +68,7 @@ public class WordOperation {
             Document document = new Document(srcPath);
             return getTableContent(document);
         }
-        throw new NullPointerException("srcPath:" + srcPath);
+        throw new WordException("srcPath:" + srcPath);
     }
 
     /**
@@ -113,7 +114,7 @@ public class WordOperation {
             Document document = new Document(srcPath);
             return getHeaderFooter(document);
         }
-        throw new NullPointerException("srcPath:" + srcPath);
+        throw new WordException("srcPath:" + srcPath);
     }
 
     /**
@@ -161,7 +162,7 @@ public class WordOperation {
             Document document = new Document(srcPath);
             return getText(document);
         }
-        throw new NullPointerException("srcPath:" + srcPath);
+        throw new WordException("srcPath:" + srcPath);
     }
 
     /**
@@ -195,7 +196,7 @@ public class WordOperation {
                 return null;
             }
         }
-        throw new NullPointerException("document:" + null);
+        throw new WordException("document:" + null);
     }
 
 
@@ -208,14 +209,14 @@ public class WordOperation {
      */
     public static void convert(InputStream inputStream, String outputPath, WordSaveFormat wordSaveFormat) throws Exception {
         if (Objects.isNull(inputStream) || Strings.isNullOrEmpty(outputPath)) {
-            throw new NullPointerException("inputStream or outputPath ");
+            throw new WordException("inputStream or outputPath ");
         }
         if (isLicense()) {
             Document doc = new Document(inputStream);
             doc.save(outputPath, wordSaveFormat.getValue());
             closeStream(inputStream);
         } else {
-            throw new IllegalStateException("words license validation failed");
+            throw new WordException("words license validation failed");
         }
     }
 
@@ -228,13 +229,13 @@ public class WordOperation {
      */
     public static void convert(String srcPath, String outputPath, WordSaveFormat wordSaveFormat) throws Exception {
         if (StringUtils.isNotBlank(srcPath) || Strings.isNullOrEmpty(outputPath)) {
-            throw new NullPointerException("srcPath or outputPath");
+            throw new WordException("srcPath or outputPath");
         }
         if (isLicense()) {
             Document doc = new Document(srcPath);
             doc.save(outputPath, wordSaveFormat.getValue());
         } else {
-            throw new IllegalStateException("words license validation failed");
+            throw new WordException("words license validation failed");
         }
     }
 
@@ -248,7 +249,8 @@ public class WordOperation {
      * @return 文件路径
      */
     public static List<String> saveImagesToDocument(InputStream docInputStream, String directory, String suffixName) throws Exception {
-        if (Objects.nonNull(directory) && StringUtils.isNotBlank(directory)) {
+        assert docInputStream != null;
+        if (StringUtils.isNotBlank(directory)) {
             if (!StringUtils.isNotBlank(suffixName)) {
                 suffixName = DEFAULT_SUFFIX_NAME;
             }
@@ -256,7 +258,7 @@ public class WordOperation {
             closeStream(docInputStream);
             return saveImage(doc, directory, suffixName);
         }
-        throw new NullPointerException();
+        return null;
     }
 
     /**
@@ -275,7 +277,7 @@ public class WordOperation {
             Document doc = new Document(docFileName);
             return saveImage(doc, directory, suffixName);
         }
-        throw new NullPointerException();
+        return null;
     }
 
 
@@ -354,6 +356,9 @@ public class WordOperation {
         }
     }
 
+    /**
+     * 域添加图片
+     */
     private static void insertImageByField(Document doc, List<WordImage> wordImageList) throws Exception {
         if (DocumentUtil.isNotEmpty(wordImageList)) {
             DocumentBuilder builder = new DocumentBuilder(doc);
@@ -367,6 +372,9 @@ public class WordOperation {
         }
     }
 
+    /**
+     * 书签添加图片
+     */
     private static void insertImageByBookmark(Document doc, List<WordImage> wordImageList) throws Exception {
         if (DocumentUtil.isNotEmpty(wordImageList)) {
             DocumentBuilder builder = new DocumentBuilder(doc);
@@ -408,7 +416,7 @@ public class WordOperation {
                 && DocumentUtil.isNotEmpty(wordReplace.getReplaceTextData())) {
             return true;
         }
-        throw new NullPointerException("wordReplace:" + wordReplace);
+        throw new WordException("wordReplace:" + wordReplace);
     }
 
 
@@ -610,7 +618,7 @@ public class WordOperation {
                 && StringUtils.isNotBlank(wordWaterMark.getOutputPath()) && StringUtils.isNotBlank(wordWaterMark.getWatermarkText())) {
             return true;
         }
-        throw new NullPointerException("wordWaterMark:" + wordWaterMark);
+        throw new WordException("wordWaterMark:" + wordWaterMark);
     }
 
     private static boolean paramCheckWatermarkImage(WordWaterMark wordWaterMark) {
@@ -618,7 +626,7 @@ public class WordOperation {
                 && StringUtils.isNotBlank(wordWaterMark.getOutputPath()) && Objects.nonNull(wordWaterMark.getWatermarkImage())) {
             return true;
         }
-        throw new NullPointerException("wordWaterMark:" + wordWaterMark);
+        throw new WordException("wordWaterMark:" + wordWaterMark);
     }
 
 
