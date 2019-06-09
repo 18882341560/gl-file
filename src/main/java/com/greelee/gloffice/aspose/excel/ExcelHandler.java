@@ -22,6 +22,11 @@ import static com.greelee.gloffice.aspose.util.OfficeUtil.dateTimeToLocalDateTim
  */
 public class ExcelHandler {
 
+
+    private final static String FOND_NAME = "宋体";
+    private final static int FOND_SIZE = 16;
+    private final static boolean BOLD = true;
+
     /**
      * 去除水印，破解了的,这个方法不能公共，每种都有一个license
      */
@@ -36,18 +41,72 @@ public class ExcelHandler {
     }
 
     public static void main(String[] args) throws Exception {
+
         ExcelHandler excelHandler = new ExcelHandler();
-        Workbook workbook = new Workbook("C:\\Users\\gelin\\Desktop\\test.xlsx");
+        if (!excelHandler.isLicense()) {
+            return;
+        }
+        Workbook workbook = new Workbook();
         WorksheetCollection worksheets = workbook.getWorksheets();
         Worksheet worksheet = worksheets.get(0);
+        worksheet.setName("第一次测试");
         Cells cells = worksheet.getCells();
-        int maxRow = cells.getMaxDataRow() + 1;
-        int maxColumn = cells.getMaxDataColumn() + 1;
-        for (int i = 0; i < maxRow; i++) {
-            for (int j = 0; j < maxColumn; j++) {
-                System.out.println(cells.get(i, j).getFormula());
+        int colnum = 5;
+        int rownum = 5;
+        Cell cell = cells.get(0, 1);
+        cell.setValue("总标题");
+        cell.setStyle(excelHandler.createHeaderStyle(workbook));
+        cells.merge(0, 0, 1, 5);
+        for (int i = 0; i < colnum; i++) {
+            cells.get(1, i).setValue("字段标题" + (i + 1));
+            cells.get(1, i).setStyle(excelHandler.createHeaderStyle(workbook));
+            cells.setRowHeight(0, 25);
+            cells.setColumnWidth(i, 50);
+        }
+
+        for (int i = 0; i < rownum; i++) {
+            for (int j = 0; j < rownum; j++) {
+                cells.get(i + 2, j).setValue("哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈");
+                cells.get(i + 2, j).setStyle(excelHandler.createHeaderStyle(workbook));
+                cells.setRowHeight(i + 2, 20);
+                cells.setColumnWidth(i + 2, 38);
             }
         }
+        workbook.save("C:\\Users\\gelin\\Desktop\\a.xlsx", SaveFormat.XLSX);
+    }
+
+
+    public void exportExcel(String outPath, int outSheet, String sheetName) {
+        Workbook workbook = new Workbook();
+        WorksheetCollection worksheets = workbook.getWorksheets();
+        Worksheet worksheet = worksheets.get(outSheet);
+        worksheet.setName(sheetName);
+        Cells cells = worksheet.getCells();
+    }
+
+    private void createTitltStyle(Cell cell) {
+
+    }
+
+    private Style createHeaderStyle(Workbook workbook) {
+        Style style = workbook.createStyle();
+        //居中
+        style.setHorizontalAlignment(TextAlignmentType.CENTER);
+        //自动换行
+        style.setTextWrapped(true);
+        //单元格 实线
+        style.setPattern(BackgroundType.NONE);
+        //背景色
+//        style.setForegroundArgbColor();
+        this.createFont(style);
+        return style;
+    }
+
+    private void createFont(Style style) {
+        Font font = style.getFont();
+        font.setBold(BOLD);
+        font.setSize(FOND_SIZE);
+        font.setName(FOND_NAME);
     }
 
 
