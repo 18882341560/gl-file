@@ -10,9 +10,9 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>gl-file</artifactId>
+    <artifactId>gl-office</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>gl-file</name>
+    <name>gl-office</name>
     <description>文件操作模块</description>
 
 
